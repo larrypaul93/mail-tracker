@@ -2,6 +2,9 @@
 
 namespace jdavidbakr\MailTracker;
 
+use jdavidbakr\MailTracker\Events\BeforeSendMail;
+use Event;
+
 class MailTracker implements \Swift_Events_SendListener {
 
 	protected $hash;
@@ -29,16 +32,16 @@ class MailTracker implements \Swift_Events_SendListener {
             }
         }    	
 
-    	Model\SentEmail::create([
-    			'hash'=>$hash,
-    			'headers'=>$headers->toString(),
-    			'sender'=>$headers->get('from')->getFieldBody(),
-    			'recipient'=>$headers->get('to')->getFieldBody(),
-    			'subject'=>$headers->get('subject')->getFieldBody(),
-    			'content'=>$original_content,
-                'opens'=>0,
-                'clicks'=>0,
-    		]);
+    	$tracker = Model\SentEmail::create([
+                    'hash'=>$hash,
+                    'headers'=>$headers->toString(),
+                    'sender'=>$headers->get('from')->getFieldBody(),
+                    'recipient'=>$headers->get('to')->getFieldBody(),
+                    'subject'=>$headers->get('subject')->getFieldBody(),
+                    'content'=>$original_content,
+                    'opens'=>0,
+                    'clicks'=>0,
+                ]);
 
     	// Purge old records
     	if(config('mail-tracker.expire-days') > 0) {
@@ -49,11 +52,12 @@ class MailTracker implements \Swift_Events_SendListener {
             Model\SentEmailUrlClicked::whereIn('sent_email_id',$emails->pluck('id'))->delete();
             Model\SentEmail::whereIn('id',$emails->pluck('id'))->delete();
     	}
+        Event::fire(new BeforeSendMail($tracker));
 	}
 
     public function sendPerformed(\Swift_Events_SendEvent $event)
     {
-    	//
+
     }
 
     protected function addTrackers($html, $hash)

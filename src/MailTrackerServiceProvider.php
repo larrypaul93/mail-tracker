@@ -36,6 +36,9 @@ class MailTrackerServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../migrations/2016_09_07_193027_create_sent_emails_Url_Clicked_table.php' => database_path('migrations/2016_09_07_193027_create_sent_emails_Url_Clicked_table.php')
             ], 'config');
+            $this->publishes([
+                __DIR__.'/../migrations/2016_12_30_100710_add_template_fields.php' => database_path('migrations/2016_12_30_100710_add_template_fields.php')
+            ], 'config');
             $this->loadViewsFrom(__DIR__.'/views', 'emailTrakingViews');
             $this->publishes([
                 __DIR__.'/views' => base_path('resources/views/vendor/emailTrakingViews'),
