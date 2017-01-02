@@ -52,7 +52,7 @@ class MailTracker implements \Swift_Events_SendListener {
             Model\SentEmailUrlClicked::whereIn('sent_email_id',$emails->pluck('id'))->delete();
             Model\SentEmail::whereIn('id',$emails->pluck('id'))->delete();
     	}
-        Event::fire(new BeforeSendMail($tracker));
+        Event::fire(new BeforeSendMail($tracker,$event));
 	}
 
     public function sendPerformed(\Swift_Events_SendEvent $event)
